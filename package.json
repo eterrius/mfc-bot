@@ -1,0 +1,14 @@
+{
+  "name": "mfc-bot",
+  "version": "1.0.0",
+  "description": "Hello! This is a mini project that I have created to help out with the understaffed MFC team, which I hope that this bot can help to reduce some of the workload we have.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eterrius",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  }
+}
