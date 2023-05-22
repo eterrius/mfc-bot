@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -103,7 +103,7 @@ module.exports = {
         let reply = ``;
 
         if (dupes.size > 0) {
-            reply += `The same user(s) `;
+            reply = `The same user(s) `;
 
             for (player of dupes) {
                 reply += `\`${player.username}#${player.discriminator}\` `;
@@ -111,11 +111,20 @@ module.exports = {
 
             reply += `exists in multiple times! Please check your input.`;
 
+            reply = { 
+                description: reply,
+                color: 0xFF3333 }
+
         } else {
-            reply += `Team 1: ${team1}\n`;
-            reply += `Team 2: ${team2}`;
+            reply = new EmbedBuilder()
+            .setColor(0x33CC33)
+            .setTitle('MFC Match')
+            .addFields(
+                { name: 'Team 1', value: team1.join(' ') },
+                { name: 'Team 2', value: team2.join(' ') })
+            .setTimestamp();
         }
 
-        await interaction.reply(reply);
+        await interaction.reply({ embeds: [reply] });
     },
 };
