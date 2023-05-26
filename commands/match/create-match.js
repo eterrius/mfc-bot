@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
+    cooldown: 10,
 	data: new SlashCommandBuilder()
 		.setName('create-match')
 		.setDescription('Request for a MFC match')
@@ -28,8 +29,8 @@ module.exports = {
             .setDescription('Choose if you want a showcase for the pool')
             .setRequired(true))
 
-        // Additional options
 
+        // Additional options
         // -- Team 1 players
         .addUserOption(option => option
             .setName('team1player2')
