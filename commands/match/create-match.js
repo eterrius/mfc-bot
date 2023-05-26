@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRow, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
     cooldown: 10,
@@ -100,18 +100,18 @@ module.exports = {
 
 	async execute(interaction) {
         // Get team 1
-        const team1 = [interaction.options.getUser('team1player1'), 
-                       interaction.options.getUser('team1player2'), 
-                       interaction.options.getUser('team1player3'), 
-                       interaction.options.getUser('team1player4'), 
-                       interaction.options.getUser('team1player5')].filter(function (name) { if (name != null) { return name; };})
+        const team1 = [interaction.options.getMember('team1player1'), 
+                       interaction.options.getMember('team1player2'), 
+                       interaction.options.getMember('team1player3'), 
+                       interaction.options.getMember('team1player4'), 
+                       interaction.options.getMember('team1player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get team 2
-        const team2 = [interaction.options.getUser('team2player1'), 
-                       interaction.options.getUser('team2player2'), 
-                       interaction.options.getUser('team2player3'), 
-                       interaction.options.getUser('team2player4'), 
-                       interaction.options.getUser('team2player5')].filter(function (name) { if (name != null) { return name; };})
+        const team2 = [interaction.options.getMember('team2player1'), 
+                       interaction.options.getMember('team2player2'), 
+                       interaction.options.getMember('team2player3'), 
+                       interaction.options.getMember('team2player4'), 
+                       interaction.options.getMember('team2player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get pool size
         const poolsize = interaction.options.getString('poolsize');
@@ -200,6 +200,61 @@ module.exports = {
             .setTimestamp();
         }
 
-        await interaction.reply({ embeds: [reply] });
+        // Buttons
+        const submit = new ButtonBuilder()
+            .setCustomId('submit')
+            .setLabel('Submit')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('1055172257179258991');
+
+        const cancel = new ButtonBuilder()
+            .setCustomId('cancel')
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('1108592153455759412');
+
+        const row = new ActionRowBuilder()
+            .addComponents(submit, cancel);
+
+        response = await interaction.reply({ embeds: [reply], components: [row] });
+
+        const collectorFilter = i => i.user.id === interaction.user.id;
+
+        try {
+            const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+
+            if (confirmation.customId === 'submit') {
+                // Role creation for queue
+                var newRole;
+
+                await interaction.guild.roles.create({
+                    name: 'MFC Queue',
+                    color: 0x693333,
+                    reason: 'New queue for matchmake'
+                })
+                .then(role => newRole = role)
+                .catch(err => console.log(err));
+
+                for (member of team1) {
+                    member.roles.add(newRole);
+                }
+
+                for (member of team2) {
+                    member.roles.add(newRole);
+                }
+
+                await confirmation.update({ content: `Submitted, processing...`, components: [] });
+
+                await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. \
+                Please note that you will be pinged on futher updates such as whether the match is created or not.`});
+
+            } else if (confirmation.customId === 'cancel') {
+                await confirmation.update({ content: 'Matchmake cancelled', components: [] });
+            }
+            
+        } catch (e) {
+            // await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
+            await interaction.editReply({ content: e.toString(), components: [] });
+        }
     },
 };
