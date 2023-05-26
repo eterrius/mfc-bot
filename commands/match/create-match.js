@@ -20,17 +20,9 @@ module.exports = {
         // -- Pool size
         .addStringOption(option => option
             .setName('poolsize')
-            .setDescription('Pool size')
+            .setDescription('Pool size; Specify pool structure if custom')
             .setAutocomplete(true)
             .setRequired(true)
-            // .addChoices(
-            //     { name: 'Round of 32', value: 'RO32' },
-            //     { name: 'Round of 16', value: 'RO16' },
-            //     { name: 'Quarterfinals', value: 'QF' },
-            //     { name: 'Semifinals', value: 'SF' },
-            //     { name: 'Finals', value: 'F'},
-            //     { name: 'Grandfinals', value: 'GF'}
-            // ))
         )
 
         // -- Star rating
