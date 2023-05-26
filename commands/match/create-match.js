@@ -17,6 +17,22 @@ module.exports = {
             .setDescription('A player of second team to include for the match')
             .setRequired(true))
 
+        // -- Pool size
+        .addStringOption(option => option
+            .setName('poolsize')
+            .setDescription('Pool size')
+            .setAutocomplete(true)
+            .setRequired(true)
+            // .addChoices(
+            //     { name: 'Round of 32', value: 'RO32' },
+            //     { name: 'Round of 16', value: 'RO16' },
+            //     { name: 'Quarterfinals', value: 'QF' },
+            //     { name: 'Semifinals', value: 'SF' },
+            //     { name: 'Finals', value: 'F'},
+            //     { name: 'Grandfinals', value: 'GF'}
+            // ))
+        )
+
         // -- Star rating
         .addNumberOption(option => option
             .setName('starrating')
@@ -74,6 +90,22 @@ module.exports = {
             .setRequired(false))
 
         .setDMPermission(false),
+
+    async autocomplete(interaction) {
+        const focusedOption = interaction.options.getFocused(true);
+        let choices;
+
+        if (focusedOption.name === 'poolsize') {
+            choices = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Finals', 'Grandfinals'];
+        }
+
+        const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
+
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice }))
+        )
+    }, 
+
 	async execute(interaction) {
         // Get team 1
         const team1 = [interaction.options.getUser('team1player1'), 
@@ -88,6 +120,9 @@ module.exports = {
                        interaction.options.getUser('team2player3'), 
                        interaction.options.getUser('team2player4'), 
                        interaction.options.getUser('team2player5')].filter(function (name) { if (name != null) { return name; };})
+
+        // Get pool size
+        const poolsize = interaction.options.getString('poolsize');
 
         // Get star rating
         const sr = interaction.options.getNumber('starrating').toString();
@@ -165,6 +200,7 @@ module.exports = {
                 { name: 'Team 1', value: team1.join(' ') },
                 { name: 'Team 2', value: team2.join(' ') },
                 { name: '\u200B', value: '\u200B' },
+                { name: 'Pool Size', value: poolsize, inline: true },
                 { name: 'Star Rating', value: sr, inline: true },
                 { name: 'Showcase', value: showcase, inline: true },
                 { name: '\u200B', value: '\u200B' },
