@@ -5,7 +5,8 @@ module.exports = {
 		.setName('create-match')
 		.setDescription('Request for a MFC match')
 
-        // Team options
+        // Required options
+        // -- Team options
         .addUserOption(option => option
             .setName('team1player1')
             .setDescription('A player of first team to include for the match')
@@ -15,6 +16,19 @@ module.exports = {
             .setDescription('A player of second team to include for the match')
             .setRequired(true))
 
+        // -- Star rating
+        .addNumberOption(option => option
+            .setName('starrating')
+            .setDescription('Star rating of the pool')
+            .setRequired(true))
+
+        // -- Showcase
+        .addBooleanOption(option => option
+            .setName('showcase')
+            .setDescription('Choose if you want a showcase for the pool')
+            .setRequired(true))
+
+        // Additional options
         .addUserOption(option => option
             .setName('team1player2')
             .setDescription('A player of first team to include for the match')
@@ -49,6 +63,8 @@ module.exports = {
             .setDescription('A player of second team to include for the match')
             .setRequired(false))
 
+        
+
         .setDMPermission(false),
 	async execute(interaction) {
         // Get team 1
@@ -65,6 +81,17 @@ module.exports = {
                        interaction.options.getUser('team2player4'), 
                        interaction.options.getUser('team2player5')].filter(function (name) { if (name != null) { return name; };})
 
+        // Get star rating
+        const sr = interaction.options.getNumber('starrating').toString();
+
+        // Get showcase option
+        var showcase = '';
+
+        if (interaction.options.getBoolean('showcase') === true) {
+            showcase = ':white_check_mark:';
+        } else {
+            showcase = ':negative_squared_cross_mark:';
+        }
 
         // something something check for duplicate users entered
         let dupes = [];
@@ -121,7 +148,10 @@ module.exports = {
             .setTitle('MFC Match')
             .addFields(
                 { name: 'Team 1', value: team1.join(' ') },
-                { name: 'Team 2', value: team2.join(' ') })
+                { name: 'Team 2', value: team2.join(' ') },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Star Rating', value: sr, inline: true },
+                { name: 'Showcase', value: showcase, inline: true })
             .setTimestamp();
         }
 
