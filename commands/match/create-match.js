@@ -29,6 +29,8 @@ module.exports = {
             .setRequired(true))
 
         // Additional options
+
+        // -- Team 1 players
         .addUserOption(option => option
             .setName('team1player2')
             .setDescription('A player of first team to include for the match')
@@ -46,6 +48,7 @@ module.exports = {
             .setDescription('A player of first team to include for the match')
             .setRequired(false))
 
+        // -- Team 2 players
         .addUserOption(option => option
             .setName('team2player2')
             .setDescription('A player of second team to include for the match')
@@ -63,7 +66,11 @@ module.exports = {
             .setDescription('A player of second team to include for the match')
             .setRequired(false))
 
-        
+        // -- Special requests
+        .addStringOption(option => option
+            .setName('specialreq')
+            .setDescription('Special requests of the pool')
+            .setRequired(false))
 
         .setDMPermission(false),
 	async execute(interaction) {
@@ -91,6 +98,13 @@ module.exports = {
             showcase = ':white_check_mark:';
         } else {
             showcase = ':negative_squared_cross_mark:';
+        }
+
+        // Get special requests
+        let req = interaction.options.getString('specialreq');
+
+        if (req === null) {
+            req = 'None';
         }
 
         // something something check for duplicate users entered
@@ -151,7 +165,9 @@ module.exports = {
                 { name: 'Team 2', value: team2.join(' ') },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Star Rating', value: sr, inline: true },
-                { name: 'Showcase', value: showcase, inline: true })
+                { name: 'Showcase', value: showcase, inline: true },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Special Requests', value: req })
             .setTimestamp();
         }
 
