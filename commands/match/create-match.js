@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, WebhookClient, messageLink } = require('discord.js');
 
 module.exports = {
     cooldown: 10,
@@ -91,7 +91,7 @@ module.exports = {
             choices = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Finals', 'Grandfinals'];
         }
 
-        const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
+        const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedOption.value));
 
         await interaction.respond(
             filtered.map(choice => ({ name: choice, value: choice }))
@@ -245,8 +245,30 @@ module.exports = {
 
                 await confirmation.update({ content: `Submitted, processing...`, components: [] });
 
-                await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. \
-                Please note that you will be pinged on futher updates such as whether the match is created or not.`});
+                await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. 
+Please note that you will be pinged on futher updates such as whether the match is created or not.`});
+
+                // Webhook followup
+                var { webhookId } = require('../../config.json');
+
+                var message = await response.fetch();
+                
+
+                for (var id of webhookId) {
+                    var webhook = await interaction.guild.client.fetchWebhook(id);
+
+                    const embed = new EmbedBuilder()
+                        .setTitle('New MFC Submission')
+                        .setDescription(`A new potential match has been made! Please review it from the message link below.`)
+                        .addFields(
+                            { name: 'Message', value: `https://discord.com/channels/@me/${message.channelId}/${message.id}` }
+                        );
+
+                    webhook.send({
+                        content: `<@&${newRole.id}>`, // change to staff role (added from js to add a list of staff roles)
+                        embeds: [embed]
+                    })
+                };
 
             } else if (confirmation.customId === 'cancel') {
                 await confirmation.update({ content: 'Matchmake cancelled', components: [] });

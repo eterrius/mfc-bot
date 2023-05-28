@@ -80,10 +80,10 @@ module.exports = {
                     if (config.webhookId.indexOf(webhook.id) !== -1) {
                         config.webhookId = config.webhookId.filter(id => id !== webhook.id);
                     }
-
-                    console.log('after ', config.webhookId);
                 }
             });
+
+            config.channelId = config.channelId.filter(id => id !== channel);
 
             const jsonString = JSON.stringify(config, null, 2);
 
