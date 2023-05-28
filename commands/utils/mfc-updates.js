@@ -77,11 +77,12 @@ module.exports = {
                 webhook.delete();
 
                 if (config.hasOwnProperty('webhookId')) {
-                    if (webhook.id in config.webhookId) {
-                        config.webhookId.pop(webhook.id);
+                    if (config.webhookId.indexOf(webhook.id) !== -1) {
+                        config.webhookId = config.webhookId.filter(id => id !== webhook.id);
                     }
+
+                    console.log('after ', config.webhookId);
                 }
-                
             });
 
             const jsonString = JSON.stringify(config, null, 2);
