@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRow, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
     cooldown: 10,
@@ -253,8 +253,8 @@ module.exports = {
             }
             
         } catch (e) {
-            // await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
-            await interaction.editReply({ content: e.toString(), components: [] });
+            console.log(e);
+            await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling...', components: [] });
         }
     },
 };
