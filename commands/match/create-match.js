@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, WebhookClient, messageLink } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, WebhookClient } = require('discord.js');
+const config = require('../../config.json')
 
 module.exports = {
     cooldown: 10,
@@ -249,8 +250,14 @@ Please note that you will be pinged on futher updates such as whether the match 
                 var { webhookId } = require('../../config.json');
 
                 var message = await response.fetch();
-                
 
+                const adminRoles = config.roleId;
+                let content = ``;
+
+                for (var role of adminRoles) {
+                    content += `<@&${role}>`;
+                }
+                
                 for (var id of webhookId) {
                     var webhook = await interaction.guild.client.fetchWebhook(id);
 
@@ -262,7 +269,7 @@ Please note that you will be pinged on futher updates such as whether the match 
                         );
 
                     webhook.send({
-                        content: `<@&${newRole.id}>`, // change to staff role (added from js to add a list of staff roles)
+                        content: content,
                         embeds: [embed]
                     })
                 };
