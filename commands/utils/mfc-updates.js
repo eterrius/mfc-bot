@@ -79,11 +79,10 @@ module.exports = {
                     const webhooks = await channel.fetchWebhooks();
 
                     webhooks.forEach(webhook => {
-                        webhook.delete();
-
                         if (config.hasOwnProperty('webhookId')) {
                             if (config.webhookId.indexOf(webhook.id) !== -1) {
                                 config.webhookId = config.webhookId.filter(id => id !== webhook.id);
+                                webhook.delete();
                             }
                         }
                     });
@@ -98,7 +97,7 @@ module.exports = {
                         }
                     });
 
-                    await interaction.reply(`All webhooks removed from ${channel}.`);
+                    await interaction.reply(`All MFC webhooks removed from ${channel}.`);
                 }
 
         } else {
