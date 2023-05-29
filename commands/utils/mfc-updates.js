@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ChannelType, PermissionsBitField } = require('discord.js');
 const { EmbedBuilder } = require('@discordjs/builders');
-const fs = require('fs')
-const config = require('../../config.json')
+const fs = require('fs');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,8 +27,21 @@ module.exports = {
         .setDMPermission(false),
 
     async execute(interaction) {
+        const config = require('../../config.json')
+
         // Restrict command to admin roles
-        if (interaction.member.permissions.has([
+        const roles = await interaction.member.roles.cache.map(role => role.id);
+        var hasAdminRole = false;
+
+        for (var role of roles) {
+            if (config.hasOwnProperty('roleId')) {
+                if (config.roleId.indexOf(role) !== -1) {
+                    hasAdminRole = true;
+                }
+            }
+        }
+
+        if (hasAdminRole || interaction.member.permissions.has([
             PermissionsBitField.Flags.Administrator, 
             PermissionsBitField.Flags.AddReactions, 
             PermissionsBitField.Flags.ManageGuild])) {

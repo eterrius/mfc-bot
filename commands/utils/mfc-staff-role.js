@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ChannelType, PermissionsBitField } = require('discord.js');
 const { EmbedBuilder } = require('@discordjs/builders');
 const fs = require('fs')
-const config = require('../../config.json')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,7 +8,7 @@ module.exports = {
         .setDescription('Settings of the accepted MFC staff roles')
         .addSubcommand(subcommand => subcommand
             .setName('add')
-            .setDescription('Adds a new role to gain access to this bot\'s restricted commands')
+            .setDescription('Adds a new role to gain access to this bot\'s restricted commands and staff pings')
             .addRoleOption(option => option
                 .setName('role')
                 .setDescription('The role to add')
@@ -17,7 +16,7 @@ module.exports = {
 
         .addSubcommand(subcommand => subcommand
             .setName('remove')
-            .setDescription('Removes a role that has access to this bot\'s restricted commands')
+            .setDescription('Removes a role that has access to this bot\'s restricted commands and staff pings')
             .addRoleOption(option => option
                 .setName('role')
                 .setDescription('The role to remove')
@@ -26,8 +25,21 @@ module.exports = {
         .setDMPermission(false),
 
     async execute(interaction) {
+        const config = require('../../config.json')
+
         // Restrict command to admin roles
-        if (interaction.member.permissions.has([
+        const roles = await interaction.member.roles.cache.map(role => role.id);
+        var hasAdminRole = false;
+
+        for (var role of roles) {
+            if (config.hasOwnProperty('roleId')) {
+                if (config.roleId.indexOf(role) !== -1) {
+                    hasAdminRole = true;
+                }
+            }
+        }
+
+        if (hasAdminRole || interaction.member.permissions.has([
             PermissionsBitField.Flags.Administrator, 
             PermissionsBitField.Flags.AddReactions, 
             PermissionsBitField.Flags.ManageGuild])) {
