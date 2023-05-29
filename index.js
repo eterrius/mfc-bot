@@ -5,7 +5,7 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 
 // Create an instance for importing commands
 client.commands = new Collection();

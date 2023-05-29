@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require('discord.js');
 const config = require('../../config.json');
 
 module.exports = {
@@ -215,7 +215,7 @@ module.exports = {
             const row = new ActionRowBuilder()
                 .addComponents(submit, cancel);
 
-            response = await interaction.reply({ embeds: [reply], components: [row] });
+            const response = await interaction.reply({ embeds: [reply], components: [row] });
 
             const collectorFilter = i => i.user.id === interaction.user.id;
 
@@ -246,8 +246,11 @@ module.exports = {
 
                     await new Promise(response => setTimeout(response, 2000)); // 2 second delay after role assignments
 
+                    await confirmation.message.react('✅');
+                    await confirmation.message.react('❌');
+
                     await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. 
-        Please note that you will be pinged on futher updates such as whether the match is created or not.`});
+Please note that you will be pinged on futher updates such as whether the match is created or not.`});
 
                     // Webhook followup
                     var { webhookId } = require('../../config.json');
@@ -276,6 +279,41 @@ module.exports = {
                             embeds: [embed]
                         })
                     };
+
+                    const adminReactionFilter = async (reaction, user) => {
+                        const member = await interaction.guild.members.fetch(user.id);
+                        const roles = member.roles.cache.map(role => role.id);
+                        var hasAdminRole = false;
+
+                        for (var role of roles) {
+                            if (config.hasOwnProperty('roleId')) {
+                                if (config.roleId.indexOf(role) !== -1) {
+                                    hasAdminRole = true;
+                                }
+                            }
+                        } 
+
+                        return ['❌', '✅'].includes(reaction.emoji.name) && (hasAdminRole || member.permissions.has([
+                            PermissionsBitField.Flags.Administrator, 
+                            PermissionsBitField.Flags.AddReactions, 
+                            PermissionsBitField.Flags.ManageGuild]));
+                    }
+
+                    message.awaitReactions({
+                        filter: adminReactionFilter,
+                        max: 1
+                    }).then(collected => {
+                        const reaction = collected.first();
+                        
+                        if (reaction.emoji.name === '✅') {
+                            console.log('nice');
+                        } else {
+                            console.log('no');
+                        }
+                    }).catch(collected => {
+                        console.log(collected);
+                    });
+
 
                 } else if (confirmation.customId === 'cancel') {
                     await confirmation.update({ content: 'Matchmake cancelled', components: [] });
