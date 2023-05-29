@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, WebhookClient } = require('discord.js');
-const config = require('../../config.json')
+const config = require('../../config.json');
 
 module.exports = {
     cooldown: 10,
@@ -220,7 +220,7 @@ module.exports = {
             const collectorFilter = i => i.user.id === interaction.user.id;
 
             try {
-                const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+                const confirmation = await response.awaitMessageComponent({ filter: collectorFilter });
 
                 if (confirmation.customId === 'submit') {
                     // Role creation for queue
@@ -243,6 +243,8 @@ module.exports = {
                     }
 
                     await confirmation.update({ content: `Submitted, processing...`, components: [] });
+
+                    await new Promise(response => setTimeout(response, 2000)); // 2 second delay after role assignments
 
                     await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. 
         Please note that you will be pinged on futher updates such as whether the match is created or not.`});
@@ -281,7 +283,7 @@ module.exports = {
                 
             } catch (e) {
                 console.log(e);
-                await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling...', components: [] });
+                await interaction.editReply({ content: 'An unexpected error occured, cancelling...', components: [] });
             }
         }  
     },
