@@ -145,7 +145,6 @@ module.exports = {
         var dupe_id = team1_ids.filter((e, i, a) => a.indexOf(e) !== i);
         if (dupe_id.length >= 1) {
             for (id of dupe_id) {
-                console.log(id, team1.find(player => player.id === id))
                 dupes.push(team1.find(player => player.id === id));
             }
         }
@@ -154,7 +153,6 @@ module.exports = {
         var dupe_id = team2_ids.filter((e, i, a) => a.indexOf(e) !== i);
         if (dupe_id.length >= 1) {
             for (id of dupe_id) {
-                console.log(id, team2.find(player => player.id === id))
                 dupes.push(team2.find(player => player.id === id));
             }
         }
@@ -162,7 +160,6 @@ module.exports = {
         // Get duplicates across teams
         for (player of team1) {
             if (team2.some(function(compare) { return compare === player; })) {
-                dupe = true;
                 dupes.push(player);
             }
         }
