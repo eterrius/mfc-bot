@@ -101,18 +101,18 @@ module.exports = {
 
 	async execute(interaction) {
         // Get team 1
-        const team1 = [interaction.options.getUser('team1player1'), 
-                       interaction.options.getUser('team1player2'), 
-                       interaction.options.getUser('team1player3'), 
-                       interaction.options.getUser('team1player4'), 
-                       interaction.options.getUser('team1player5')].filter(function (name) { if (name != null) { return name; };})
+        const team1 = [interaction.options.getMember('team1player1'), 
+                       interaction.options.getMember('team1player2'), 
+                       interaction.options.getMember('team1player3'), 
+                       interaction.options.getMember('team1player4'), 
+                       interaction.options.getMember('team1player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get team 2
-        const team2 = [interaction.options.getUser('team2player1'), 
-                       interaction.options.getUser('team2player2'), 
-                       interaction.options.getUser('team2player3'), 
-                       interaction.options.getUser('team2player4'), 
-                       interaction.options.getUser('team2player5')].filter(function (name) { if (name != null) { return name; };})
+        const team2 = [interaction.options.getMember('team2player1'), 
+                       interaction.options.getMember('team2player2'), 
+                       interaction.options.getMember('team2player3'), 
+                       interaction.options.getMember('team2player4'), 
+                       interaction.options.getMember('team2player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get pool size
         const poolsize = interaction.options.getString('poolsize');
@@ -173,7 +173,7 @@ module.exports = {
             reply = `The same user(s) `;
 
             for (player of dupes) {
-                reply += `\`${player.username}#${player.discriminator}\` `;
+                reply += `\`${player.user.username}#${player.user.discriminator}\` `;
             }
 
             reply += `exists in multiple times! Please check your input.`;
