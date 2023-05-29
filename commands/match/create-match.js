@@ -101,18 +101,18 @@ module.exports = {
 
 	async execute(interaction) {
         // Get team 1
-        const team1 = [interaction.options.getMember('team1player1'), 
-                       interaction.options.getMember('team1player2'), 
-                       interaction.options.getMember('team1player3'), 
-                       interaction.options.getMember('team1player4'), 
-                       interaction.options.getMember('team1player5')].filter(function (name) { if (name != null) { return name; };})
+        const team1 = [interaction.options.getUser('team1player1'), 
+                       interaction.options.getUser('team1player2'), 
+                       interaction.options.getUser('team1player3'), 
+                       interaction.options.getUser('team1player4'), 
+                       interaction.options.getUser('team1player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get team 2
-        const team2 = [interaction.options.getMember('team2player1'), 
-                       interaction.options.getMember('team2player2'), 
-                       interaction.options.getMember('team2player3'), 
-                       interaction.options.getMember('team2player4'), 
-                       interaction.options.getMember('team2player5')].filter(function (name) { if (name != null) { return name; };})
+        const team2 = [interaction.options.getUser('team2player1'), 
+                       interaction.options.getUser('team2player2'), 
+                       interaction.options.getUser('team2player3'), 
+                       interaction.options.getUser('team2player4'), 
+                       interaction.options.getUser('team2player5')].filter(function (name) { if (name != null) { return name; };})
 
         // Get pool size
         const poolsize = interaction.options.getString('poolsize');
@@ -182,6 +182,8 @@ module.exports = {
                 description: reply,
                 color: 0xFF3333 }
 
+            await interaction.reply({ embeds: [reply] })
+
         } else {
             reply = new EmbedBuilder()
             .setColor(0x33CC33)
@@ -196,91 +198,91 @@ module.exports = {
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Special Requests', value: req })
             .setTimestamp();
-        }
 
-        // Buttons
-        const submit = new ButtonBuilder()
+            // Buttons
+            const submit = new ButtonBuilder()
             .setCustomId('submit')
             .setLabel('Submit')
             .setStyle(ButtonStyle.Primary)
             .setEmoji('1055172257179258991');
 
-        const cancel = new ButtonBuilder()
-            .setCustomId('cancel')
-            .setLabel('Cancel')
-            .setStyle(ButtonStyle.Secondary)
-            .setEmoji('1108592153455759412');
+            const cancel = new ButtonBuilder()
+                .setCustomId('cancel')
+                .setLabel('Cancel')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('1108592153455759412');
 
-        const row = new ActionRowBuilder()
-            .addComponents(submit, cancel);
+            const row = new ActionRowBuilder()
+                .addComponents(submit, cancel);
 
-        response = await interaction.reply({ embeds: [reply], components: [row] });
+            response = await interaction.reply({ embeds: [reply], components: [row] });
 
-        const collectorFilter = i => i.user.id === interaction.user.id;
+            const collectorFilter = i => i.user.id === interaction.user.id;
 
-        try {
-            const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+            try {
+                const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
 
-            if (confirmation.customId === 'submit') {
-                // Role creation for queue
-                var newRole;
+                if (confirmation.customId === 'submit') {
+                    // Role creation for queue
+                    var newRole;
 
-                await interaction.guild.roles.create({
-                    name: 'MFC Queue',
-                    color: 0x693333,
-                    reason: 'New queue for matchmake'
-                })
-                .then(role => newRole = role)
-                .catch(err => console.log(err));
+                    await interaction.guild.roles.create({
+                        name: 'MFC Queue',
+                        color: 0x693333,
+                        reason: 'New queue for matchmake'
+                    })
+                    .then(role => newRole = role)
+                    .catch(err => console.log(err));
 
-                for (member of team1) {
-                    member.roles.add(newRole);
-                }
+                    for (member of team1) {
+                        member.roles.add(newRole);
+                    }
 
-                for (member of team2) {
-                    member.roles.add(newRole);
-                }
+                    for (member of team2) {
+                        member.roles.add(newRole);
+                    }
 
-                await confirmation.update({ content: `Submitted, processing...`, components: [] });
+                    await confirmation.update({ content: `Submitted, processing...`, components: [] });
 
-                await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. 
-Please note that you will be pinged on futher updates such as whether the match is created or not.`});
+                    await interaction.followUp({ content: `<@&${newRole.id}>, your match request is currently being reviewed. 
+        Please note that you will be pinged on futher updates such as whether the match is created or not.`});
 
-                // Webhook followup
-                var { webhookId } = require('../../config.json');
+                    // Webhook followup
+                    var { webhookId } = require('../../config.json');
 
-                var message = await response.fetch();
+                    var message = await response.fetch();
 
-                const adminRoles = config.roleId;
-                let content = ``;
+                    const adminRoles = config.roleId;
+                    let content = ``;
 
-                for (var role of adminRoles) {
-                    content += `<@&${role}>`;
+                    for (var role of adminRoles) {
+                        content += `<@&${role}>`;
+                    }
+                    
+                    for (var id of webhookId) {
+                        var webhook = await interaction.guild.client.fetchWebhook(id);
+
+                        const embed = new EmbedBuilder()
+                            .setTitle('New MFC Submission')
+                            .setDescription(`A new potential match has been made! Please review it from the message link below.`)
+                            .addFields(
+                                { name: 'Message', value: `https://discord.com/channels/@me/${message.channelId}/${message.id}` }
+                            );
+
+                        webhook.send({
+                            content: content,
+                            embeds: [embed]
+                        })
+                    };
+
+                } else if (confirmation.customId === 'cancel') {
+                    await confirmation.update({ content: 'Matchmake cancelled', components: [] });
                 }
                 
-                for (var id of webhookId) {
-                    var webhook = await interaction.guild.client.fetchWebhook(id);
-
-                    const embed = new EmbedBuilder()
-                        .setTitle('New MFC Submission')
-                        .setDescription(`A new potential match has been made! Please review it from the message link below.`)
-                        .addFields(
-                            { name: 'Message', value: `https://discord.com/channels/@me/${message.channelId}/${message.id}` }
-                        );
-
-                    webhook.send({
-                        content: content,
-                        embeds: [embed]
-                    })
-                };
-
-            } else if (confirmation.customId === 'cancel') {
-                await confirmation.update({ content: 'Matchmake cancelled', components: [] });
+            } catch (e) {
+                console.log(e);
+                await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling...', components: [] });
             }
-            
-        } catch (e) {
-            console.log(e);
-            await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling...', components: [] });
-        }
+        }  
     },
 };
