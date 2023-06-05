@@ -306,9 +306,39 @@ Please note that you will be pinged on futher updates such as whether the match 
                         const reaction = collected.first();
                         
                         if (reaction.emoji.name === '✅') {
-                            console.log('nice');
+                            // Check for all role names
+                            const allRoleNames = message.guild.roles.cache.filter(role => {
+                                // Check if role name start with M, and ends with a number
+                                return /M\d$/.test(role.name);
+                            }).map(role => role.name);
+
+                            // Get most recent MFC role
+                            var recent = allRoleNames[allRoleNames.length - 1];
+                            var newName = 'M' + (Number(recent.substr(1)) + 1).toString();
+                        
+                            newRole.setName(newName);
+                            
+                            interaction.followUp(`${newRole}, your match has been approved! 
+Please wait patiently while we work to get you the pool.`);
+                        
                         } else {
-                            console.log('no');
+                            var newReply = ``;
+                            
+                            for (member of team1) {
+                                newReply += `<@${member.id}>`;
+                            }
+
+                            newReply += `\n`;
+
+                            for (member of team2) {
+                                newReply += `<@${member.id}>`;
+                            }
+
+                            newReply += `\n\nYour match has been cancelled. 
+Please contact our staff members for more information.`;
+
+                            newRole.delete(`Matchmake denied by staff`);
+                            interaction.followUp(newReply);
                         }
                     }).catch(collected => {
                         console.log(collected);
