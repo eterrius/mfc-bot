@@ -105,16 +105,32 @@ module.exports = {
                 interaction.guild
               );
 
-              // Create event on MFC match
-              let event = eventManager.create({
-                name: match,
-                description: "team1 vs team2 (to be imported from sheet)",
-                entityType: 3,
-                privacyLevel: 2,
-                entityMetadata: { location: "MFC Affiliate Streamer" },
-                scheduledStartTime: datetime,
-                scheduledEndTime: endtime,
-              });
+              const fetched = await eventManager.fetch();
+              const existingEvents = fetched.map((event) => event.name);
+
+              if (existingEvents.indexOf(match) !== -1) {
+                // Edit exisitng event
+                var index = existingEvents.indexOf(match);
+                const currentEvent = await fetched.map((event) => event.id)[
+                  index
+                ];
+
+                eventManager.edit(currentEvent, {
+                  scheduledStartTime: datetime,
+                  scheduledEndTime: endtime,
+                });
+              } else {
+                // Create event on MFC match
+                eventManager.create({
+                  name: match,
+                  description: "team1 vs team2 (to be imported from sheet)",
+                  entityType: 3,
+                  privacyLevel: 2,
+                  entityMetadata: { location: "MFC Affiliate Streamer" },
+                  scheduledStartTime: datetime,
+                  scheduledEndTime: endtime,
+                });
+              }
 
               await confirmation.update({
                 content: `Submitted, processing...`,
