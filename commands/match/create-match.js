@@ -389,15 +389,13 @@ Please note that you will be pinged on futher updates such as whether the match 
                 const allRoleNames = message.guild.roles.cache
                   .filter((role) => {
                     // Check if role name start with M, and ends with a number
-                    console.log(role.name);
-                    console.log(/(M[\d]*)+(?!\w)/.test(role.name));
                     return /(M[\d]*)+(?!\w)/.test(role.name);
                   })
                   .map((role) => role.name);
 
                 // Get most recent MFC role
                 var recent = allRoleNames[allRoleNames.length - 1];
-                console.log(recent);
+
                 if (recent)
                   var newName = "M" + (Number(recent.substr(1)) + 1).toString();
                 else var newName = "M101";
